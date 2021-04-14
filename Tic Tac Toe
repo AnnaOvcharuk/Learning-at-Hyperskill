@@ -1,0 +1,91 @@
+print('---------')
+print('|       |')
+print('|       |')
+print('|       |')
+print('---------')
+
+b = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+taken = []  
+possible = [1, 2, 3]
+XorO = 1
+solve = []
+
+while len(solve) == 0: 
+    new_in = list(input('Enter the coordinates: '))
+    new = [int(s) for s in new_in if s.isdigit()]
+    int_n = int(''.join(map(str,new)))
+
+    if len(new) < 2:
+        print('You should enter numbers!')
+        continue
+    elif new[0] not in possible or new[1] not in possible:
+        print('Coordinates should be from 1 to 3!')
+        continue
+    elif int_n in taken:
+        print('This cell is occupied! Choose another one!')
+        continue
+    else:
+        i = 0
+        t_int = 11
+        while i < len(b):
+            if int_n == t_int:
+                if XorO % 2 == 1:
+                    b[i] = 'X'
+                else:
+                    b[i] = 'O'
+                i = 9
+            else:
+                i += 1
+                if i == 3:
+                    t_int = 21
+                elif i == 6:
+                    t_int = 31
+                else:
+                    t_int += 1
+                  
+    print('---------')
+    print('| ' + b[0] + ' ' + b[1] + ' ' + b[2] + ' |')
+    print('| ' + b[3] + ' ' + b[4] + ' ' + b[5] + ' |')
+    print('| ' + b[6] + ' ' + b[7] + ' ' + b[8] + ' |')
+    print('---------')
+
+    i = 0
+    t_int = 11
+    while i < len(b):
+        if b[i] in ['O', 'X']:
+            taken.append(t_int)
+        i += 1
+        if i == 3:
+            t_int = 21
+        elif i == 6:
+            t_int = 31
+        else:
+            t_int += 1
+    XorO += 1
+
+    h = 0
+    while h < 7:
+        if (b[h] == b[h+1] == b[h+2] == 'O'):
+            solve.append('O wins')
+        if (b[h] == b[h+1] == b[h+2] == 'X'):
+            solve.append('X wins')
+        h += 3
+    v = 0
+    while v < 3:
+        if (b[v] == b[v+3] == b[v+6] == 'O'):
+            solve.append('O wins')
+        if (b[v] == b[v+3] == b[v+6] == 'X'):
+            solve.append('X wins')
+        v += 1
+    y = 0
+    if (b[0] == b[4] == b[8] == 'O'):
+            solve.append('O wins')
+    if (b[0] == b[4] == b[8] == 'X'):
+            solve.append('X wins')
+    if (b[2] == b[4] == b[6] == 'O'):
+            solve.append('O wins')
+    if (b[2] == b[4] == b[6] == 'X'):
+            solve.append('X wins')
+    if ' ' not in b and len(solve) == 0:
+            solve.append('Draw')
+print(solve)
