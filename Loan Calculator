@@ -1,0 +1,71 @@
+import argparse
+import math
+parser = argparse.ArgumentParser(fromfile_prefix_chars='@')
+parser.add_argument("--type", type=str)      #0#
+parser.add_argument("--principal", type=float) #1#
+parser.add_argument("--payment", type=float)   #2#
+parser.add_argument("--periods", type=float)   #3#
+parser.add_argument("--interest", type=float)  #4#
+args = parser.parse_args()
+
+if (len(vars(args)) < 4) or (args.type == None) or (args.interest == None) :
+    print('Incorrect parameters')
+
+# if (int(args.principal)<0) or (int(args.payment)<0) or (int(args.periods)<0) or (int(args.interest)<0):
+#     print('Incorrect parameters')
+  
+elif args.type == 'diff':
+    P = float(args.principal)
+    n = float(args.periods) 
+    i = float(args.interest) / (12 * 100)
+    m = 1
+    Full_sum = 0
+    while m <= n:
+        D = P / n + i * (P - (P * (m - 1)) / n)
+        print('Month ', m, ': payment is ', math.ceil(D))
+        m += 1
+        Full_sum += math.ceil(D)
+    print('Overpayment = ', math.ceil(Full_sum - P))   
+     
+elif args.type == 'annuity':
+    if args.periods == None:
+        loan = float(args.principal)
+        mon_pay = float(args.payment)
+        loan_int = float(args.interest)
+        i = loan_int / (12 * 100)
+        n_mon = math.ceil(math.log(mon_pay / (mon_pay - i * loan), 1 + i))
+        if n_mon < 13:
+            print('It will take', n_mon, 'months to repay this loan!')
+        else:
+            year = math.floor(n_mon / 12)
+            mon = n_mon - (year * 12)
+            if mon == 0:
+                if year > 1:
+                    print('It will take', year, 'years to repay this loan!')
+                else:
+                    print('It will take 1 year to repay this loan!') 
+            else:
+                if year > 1:
+                    print('It will take', year, 'years and', mon, 'months to repay this loan!')
+                else:
+                    print('It will take 1 year and', mon, 'months to repay this loan!')
+        print('Overpayment = ', math.ceil(n_mon * mon_pay - loan)) 
+    
+    elif args.payment == None:
+        loan = float(args.principal)
+        n_mon = float(args.periods)
+        loan_int = float(args.interest)
+        i = loan_int / (12 * 100)
+        mon_pay = loan * ((i * ((1 + i) ** n_mon)) / (((1 + i) ** n_mon) - 1))
+        print('Your monthly payment = ', math.ceil(mon_pay), '!')
+
+    elif args.principal == None:
+        mon_pay = float(args.payment)
+        n_mon = float(args.periods)
+        loan_int = float(args.interest)
+        i = loan_int / (12 * 100)
+        loan = mon_pay / ((i * ((1 + i) ** n_mon)) / (((1 + i) ** n_mon) - 1))
+        print('Your loan principal = ', math.ceil(loan), '!')
+  
+else:
+    print('Incorrect parameters')
