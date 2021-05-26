@@ -1,0 +1,47 @@
+import random
+words_in_pool = ['python', 'java', 'kotlin', 'javascript']
+word_for_game = random.choice(words_in_pool)
+l_word_for_game = list(word_for_game)
+word_appear = len(word_for_game) * '-'
+lives = 8
+guesses = []
+
+game = input('Type "play" to play the game, "exit" to quit: ')
+while game not in ["exit", "play"]:
+        game = input('Type "play" to play the game, "exit" to quit: ')
+if game == "play":
+    print('H A N G M A N')
+    while lives > 0:
+        print()
+        print(word_appear)
+        user_letter = input('Input a letter: ')
+        if len(user_letter) > 1:
+            print("You should input a single letter")
+        elif user_letter not in 'abcdefghijklmnopqrstuvwxyz':
+            print("Please enter a lowercase English letter")
+        elif user_letter in guesses:
+            print("You've already guessed this letter")
+        elif user_letter in l_word_for_game:
+            indexes = []
+            for i in range(len(l_word_for_game)):
+                if l_word_for_game[i] == user_letter:
+                    indexes.append(i)
+            list_word = list(word_appear)
+            for i in indexes:
+                list_word[i] = user_letter
+            empty = ''
+            word_appear = empty.join(list_word)
+        
+            if word_appear == word_for_game:
+                lives = 0
+                print(word_for_game)
+                print('You guessed the word!')
+                print('You survived!')
+        else:
+            print("That letter doesn't appear in the word")
+            lives -= 1
+        guesses.append(user_letter)
+      
+    if word_appear != word_for_game:
+        print('You lost!')
+    
