@@ -1,0 +1,55 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+general = pd.read_csv('D:/general.csv')
+prenatal = pd.read_csv('D:/prenatal.csv')
+sports = pd.read_csv('D:/sports.csv')
+
+prenatal.rename(columns={'HOSPITAL': 'hospital', 'Sex': 'gender'}, inplace=True)
+sports.rename(columns={'Hospital': 'hospital', 'Male/female': 'gender'}, inplace=True)
+
+prenatal['gender'] = 'f'
+general.loc[general.gender == "man", "gender"] = "m"
+general.loc[general.gender == "woman", "gender"] = "f"
+sports.loc[sports.gender == "male", "gender"] = "m"
+sports.loc[sports.gender == "female", "gender"] = "f"
+
+new = pd.concat([general, prenatal, sports], ignore_index=True)
+new.drop(columns=['Unnamed: 0'], inplace=True)
+nan_value = float("NaN")
+new = new.fillna(0)
+
+if len(general.index) > len(prenatal.index):
+    if len(general.index) > len(sports.index):
+        first_q = 'general'
+    else:
+        first_q = 'sports'
+else:
+    if len(prenatal.index) > len(sports.index):
+        first_q = 'prenatal'
+    else:
+        first_q = 'sports'
+
+second_q = new['diagnosis'].value_counts().idxmax()
+third_q = '?'
+
+print('The answer to the 1st question is', first_q)
+print('The answer to the 2nd question is', second_q)
+print('The answer to the 3rd question is', third_q)
+
+# Which hospital has the highest number of patients? Create a histogram.
+first = [len(general.index), len(prenatal.index), len(sports.index)]
+plt.hist(first, bins=3)
+plt.show()
+
+# What is the most common diagnosis among patients in all hospitals? Create a pie chart.
+second = new['diagnosis'].value_counts().plot.pie()
+plt.show()
+
+# Build a violin plot of growth distribution by hospitals.
+# Try to answer the question: what is the main reason for the gap in values?
+# No special form is required to answer this question.
+
+sns.set_theme(style="whitegrid")
+third = sns.violinplot(x="hospital", y="months", data=new, scale="count")
