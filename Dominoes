@@ -1,0 +1,153 @@
+# Write your code here
+import random
+
+pieces = [[0, 0], [0, 1], [1, 1], [0, 2], [1, 2], [2, 2], [0, 3], [1, 3], [2, 3], [3, 3],
+          [0, 4], [1, 4], [2, 4], [3, 4], [4, 4], [0, 5], [1, 5], [2, 5], [3, 5], [4, 5],
+          [5, 5], [0, 6], [1, 6], [2, 6], [3, 6], [4, 6], [5, 6], [6, 6]]
+random.shuffle(pieces)
+stock = pieces[0:14]
+computer = pieces[14:21]
+player = pieces[21:]
+snake = []
+status = []
+
+x = 6
+while x >= 0:
+    if [x, x] not in stock:
+        snake = [[x, x]]
+        if [x, x] in player:
+            status = 'computer'
+            player.remove([x, x])
+        else:
+            status = 'player'
+            computer.remove([x, x])
+        break
+    x -= 1
+    if x == 0 and len(snake) == 0:
+        random.shuffle(pieces)
+        stock = pieces[0:13]
+        computer = pieces[14:20]
+        player = pieces[21:27]
+        x = 6
+game = 'on'
+
+while game == 'on':
+    print('=' * 70)
+    print('Stock size:', len(stock))
+    print("Computer pieces:", len(computer))
+    print('')
+    if len(snake) <= 6:
+        print(*snake)
+    else:
+        print(snake[0], snake[1], snake[2], '...', snake[-3], snake[-2], snake[-1])
+    print('')
+    print("Your pieces:")
+    q = 1
+    i = 0
+    while i < len(player):
+        print(q, player[i], sep=':')
+        i += 1
+        q += 1
+    print('')
+
+    if len(player) == 0:
+        print("Status: The game is over. You won!")
+        break
+    elif len(computer) == 0:
+        print("Status: The game is over. The computer won!")
+        break
+    elif not (any(snake[0][0] in i for i in computer if isinstance(i, list))
+              or any(snake[0][0] in i for i in player if isinstance(i, list))
+              or any(snake[0][0] in i for i in stock if isinstance(i, list))):
+        print("Status: The game is over. It's a draw!")
+        break
+    elif not (any(snake[-1][-1] in i for i in computer if isinstance(i, list))
+              or any(snake[-1][-1] in i for i in player if isinstance(i, list))
+              or any(snake[-1][-1] in i for i in stock if isinstance(i, list))):
+        print("Status: The game is over. It's a draw!")
+        break
+
+    if status == 'computer':
+        print("Status: Computer is about to make a move. Press Enter to continue...")
+        if input() == '':
+            while status == 'computer':
+                comp_pool = sum(computer, []) + sum(snake, [])
+                rating = []
+                i = 0
+                while i < len(computer):
+                    rating.append(comp_pool.count(computer[i][0]) + comp_pool.count(computer[i][1]))
+                    i += 1
+
+                while len(rating) > 0:
+                    piece_rate = max(rating)
+                    index = rating.index(piece_rate)
+                    rating.remove(piece_rate)
+
+                    if snake[0][0] == computer[index][-1]:
+                        snake = [computer[index]] + snake
+                        computer.remove(computer[index])
+                        break
+                    elif snake[0][0] == computer[index][0]:
+                        snake = [computer[index][::-1]] + snake
+                        computer.remove(computer[index])
+                        break
+                    elif snake[-1][-1] == computer[index][0]:
+                        snake = snake + [computer[index]]
+                        computer.remove(computer[index])
+                        break
+                    elif snake[-1][-1] == computer[index][-1]:
+                        snake = snake + [computer[index][::-1]]
+                        computer.remove(computer[index])
+                        break
+                    elif len(rating) == 0:
+                        if len(stock) > 0:
+                            computer.append(stock[0])
+                            stock.remove(stock[0])
+                        break
+                status = 'player'
+
+    elif status == 'player':
+        print("Status: It's your turn to make a move. Enter your command.")
+        while status == 'player':
+            user1 = input()
+            if user1.isalpha() or " " in user1:
+                print('Hello')
+                print('Invalid input. Please try again.')
+                continue
+            user = int(user1)
+            if abs(user) > len(player):
+                print('Hello')
+                print('Invalid input. Please try again.')
+                continue
+            elif user > 0:
+                if snake[-1][-1] == player[user-1][0]:
+                    snake.append(player[user-1])
+                    player.remove(player[user-1])
+                elif snake[-1][-1] == player[user-1][-1]:
+                    snake.append(player[user-1][::-1])
+                    player.remove(player[user-1])
+                else:
+                    print('Illegal move. Please try again.')
+                    continue
+            elif user < 0:
+                if snake[0][0] == player[abs(user)-1][-1]:
+                    snake = [player[abs(user)-1]] + snake
+                    player.remove(player[abs(user)-1])
+                elif snake[0][0] == player[abs(user)-1][0]:
+                    snake = [player[abs(user)-1][::-1]] + snake
+                    player.remove(player[abs(user)-1])
+                else:
+                    print('Illegal move. Please try again.')
+                    continue
+            elif user == 0:
+                if len(stock) > 0:
+                    player.append(stock[0])
+                    stock.remove(stock[0])
+                elif not (any(snake[0][0] in i for i in player if isinstance(i, list))
+                          or any(snake[-1][-1] in i for i in player if isinstance(i, list))):
+                    status = 'computer'
+                    break
+                else:
+                    print('Illegal move. Please try again.')
+                    continue
+            status = 'computer'
