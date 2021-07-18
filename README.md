@@ -1,2 +1,2 @@
 # Hello world
-Just testing
+Projects made, while learning Python on Jet Brains from very beginning
