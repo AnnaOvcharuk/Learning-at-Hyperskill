@@ -1,0 +1,58 @@
+import random
+
+name = input('Enter your name: ')
+print('Hello,', name)
+
+player_rating = {}
+with open('rating.txt', 'r') as rating_file:
+    for line in rating_file:
+        player_name, score = line.split(sep=" ")
+        player_rating[player_name] = score
+
+    if name in player_rating:
+        rating = int(player_rating[name])
+
+option_list = input()
+if len(option_list) < 3:
+    comp_list = ['scissors', 'paper', 'rock']
+else:
+    comp_list = option_list.split(sep=",")
+print("Okay, let's start")
+
+winning_cases = {
+    'water': ['scissors', 'fire', 'rock', 'hun', 'lightning', 'devil', 'dragon'],
+    'dragon': ['snake', 'scissors', 'fire', 'rock', 'gun', 'lightning', 'devil'],
+    'devil': ['tree', 'human', 'snake', 'scissors', 'fire', 'rock', 'gun'],
+    'gun': ['wolf', 'tree', 'human', 'snake', 'scissors', 'fire', 'rock'],
+    'rock': ['sponge', 'wolf', 'tree', 'human', 'snake', 'scissors', 'fire'],
+    'fire': ['paper', 'sponge', 'wolf', 'tree', 'human', 'snake', 'scissors'],
+    'scissors': ['air', 'paper', 'sponge', 'wolf', 'tree', 'human', 'snake'],
+    'snake': ['water', 'air', 'paper', 'sponge', 'wolf', 'tree', 'human'],
+    'human': ['dragon', 'water', 'air', 'paper', 'sponge', 'wolf', 'tree'],
+    'tree': ['devil', 'dragon', 'water', 'air', 'paper', 'sponge', 'wolf'],
+    'wolf': ['lightning', 'devil', 'dragon', 'water', 'air', 'paper', 'sponge'],
+    'sponge': ['gun', 'lightning', 'devil', 'dragon', 'water', 'air', 'paper'],
+    'paper': ['rock', 'gun', 'lightning', 'devil', 'dragon', 'water', 'air'],
+    'air': ['fire', 'rock', 'gun', 'lightning', 'devil', 'dragon', 'water'],
+    'lightning': ['tree', 'human', 'snake', 'scissors', 'fire', 'rock', 'gun']
+}
+
+user = 'start'
+while user != '!exit':
+    user = input()
+    comp = random.choice(comp_list)
+    if user == '!exit':
+        break
+    elif user == '!rating':
+        print('Your rating:', rating)
+    elif user not in comp_list:
+        print('Invalid input')
+    elif user == comp:
+        print('There is a draw (' + user + ')')
+        rating += 50
+    elif comp in winning_cases[user]:
+        print('Well done. The computer chose', comp, 'and failed')
+        rating += 100
+    elif user in winning_cases[comp]:
+        print('Sorry, but the computer chose', comp)
+print('Bye!')
