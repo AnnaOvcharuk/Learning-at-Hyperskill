@@ -1,0 +1,125 @@
+import random
+import math
+import sqlite3
+
+conn = sqlite3.connect('card.s3db')
+cur = conn.cursor()
+cur.execute("CREATE table IF NOT EXISTS card(id INTEGER PRIMARY KEY, number TEXT, pin TEXT, balance INTEGER DEFAULT 0)")
+conn.commit()
+
+user = 'start'
+card_n = 0
+card_p = 0
+id_card = 0
+
+while user != '0':
+    print('1. Create an account')
+    print('2. Log into account')
+    print('0. Exit')
+    user = input()
+    print()
+    if user == '1':
+        print('Your card has been created')
+        print('Your card number:')
+        card_n = '400000'
+        while len(card_n) < 15:
+            card_n += str(random.randint(0, 9))
+        list_card = list(card_n)
+        i = 0
+        sum_chk = 0
+        while i < len(list_card):
+            if i % 2 == 0:
+                numb = int(list_card[i]) * 2
+                if numb > 9:
+                    numb -= 9
+            else:
+                numb = int(list_card[i])
+            sum_chk += numb
+            i += 1
+        sum_chk_rounded = math.ceil(sum_chk / 10) * 10
+        card_n += str(abs(sum_chk_rounded - sum_chk))
+        print(card_n)
+        print('Your card PIN:')
+        card_p = str(random.randint(0000, 9999)).zfill(4)
+        print(card_p)
+        print()
+        id_card += 1
+        cur.execute("INSERT INTO card(number, pin) VALUES(?, ?)", (card_n, card_p))
+        conn.commit()
+    elif user == '2':
+        user_card = str(input('Enter your card number:\n'))
+        user_pin = str(input('Enter your PIN:\n'))
+        cur.execute("SELECT count(*) FROM card WHERE number = ? AND pin = ?", (user_card, user_pin))
+        rows_count = str(cur.fetchone()).strip('[](),')
+        if rows_count == '0':
+            print('\nWrong card number or PIN!\n')
+            continue
+        else:
+            print('\nYou have successfully logged in!\n')
+            while user != 0:
+                print('1. Balance')
+                print('2. Add income')
+                print('3. Do transfer')
+                print('4. Close account')
+                print('5. Log out')
+                print('0. Exit')
+                user = input()
+                print('')
+                if user == '1':
+                    cur.execute("SELECT balance FROM card WHERE number = ?", [user_card])
+                    print('Balance: ' + str(cur.fetchone()).strip('[](),') + '\n')
+                elif user == '2':
+                    add_sum = int(input('Enter income:\n'))
+                    cur.execute("UPDATE card SET balance = balance + ? WHERE number = ?", (add_sum, user_card))
+                    conn.commit()
+                    print('Income was added!\n')
+                elif user == '3':
+                    print('Transfer')
+                    transfer_card = input('Enter card number:\n')
+                    cur.execute("SELECT count(*) FROM card WHERE number = ?", [transfer_card])
+                    rows_count = str(cur.fetchone()).strip('[](),')
+
+                    list_card = list(transfer_card)
+                    i = 0
+                    sum_chk = 0
+                    while i < len(list_card):
+                        if i % 2 == 0:
+                            numb = int(list_card[i]) * 2
+                            if numb > 9:
+                                numb -= 9
+                        else:
+                            numb = int(list_card[i])
+                        sum_chk += numb
+                        i += 1
+
+                    if str(transfer_card) == str(user_card):
+                        print("You can't transfer money to the same account!")
+                    elif sum_chk % 10 != 0:
+                        print('Probably you made a mistake in the card number.')
+                        print('Please try again!')
+                    elif rows_count == '0':
+                        print('Such a card does not exist.')
+                    else:
+                        transfer_sum = input('Enter how much money you want to transfer:\n')
+                        cur.execute("SELECT balance FROM card WHERE number = ?", [user_card])
+                        balance = str(cur.fetchone()).strip('[](),')
+                        if int(transfer_sum) > int(balance):
+                            print('Not enough money!')
+                        else:
+                            cur.execute("UPDATE card SET balance = balance - ? WHERE number = ?",
+                                        (transfer_sum, user_card))
+                            conn.commit()
+                            cur.execute("UPDATE card SET balance = balance + ? WHERE number = ?",
+                                        (transfer_sum, transfer_card))
+                            conn.commit()
+                            print('Success!\n')
+                elif user == '4':
+                    cur.execute("DELETE from card WHERE number = ?", [user_card])
+                    conn.commit()
+                    print('The account has been closed!')
+                elif user == '5':
+                    print('\nYou have successfully logged out!\n')
+                    break
+                else:
+                    break
+print('Bye!')
